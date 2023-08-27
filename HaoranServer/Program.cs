@@ -15,6 +15,16 @@ builder.Services.AddSwaggerGen();
 // 把新建的controller加入，否则swagger里无api显示
 builder.Services.AddControllers();
 
+// 设置跨域policy
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("*").AllowAnyHeader().AllowAnyMethod(); ;
+        });
+});
+
 // 实例化应用程序
 var app = builder.Build();
 
@@ -25,5 +35,7 @@ if (app.Environment.IsDevelopment())
 }
 // MapControllers() 方法负责正确地将请求路由到相应的控制器方法 ，没有这行的话，execute swagger api 会404
 app.MapControllers();
+
+app.UseCors();
 
 app.Run();

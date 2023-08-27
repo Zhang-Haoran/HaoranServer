@@ -5,9 +5,9 @@ using HaoranServer.Models;
 
 namespace HaoranServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
-    // 注意这里controller的单复数 会影响 swagger里 路径显示
+    // 注意这里controller的单复数s 会影响 swagger里 路径显示
     public class CommentController : ControllerBase
     {
         private readonly CommentContext _context;
@@ -54,7 +54,7 @@ namespace HaoranServer.Controllers
             {
                 return BadRequest();
             }
-
+            comment.UpdatedTime = DateTime.Now.ToString();
             _context.Entry(comment).State = EntityState.Modified;
 
             try
@@ -84,6 +84,8 @@ namespace HaoranServer.Controllers
           {
               return Problem("Entity set 'CommentContext.comments'  is null.");
           }
+            comment.CreatedTime = DateTime.Now.ToString();
+            comment.UpdatedTime = DateTime.Now.ToString();
             _context.comment.Add(comment);
             await _context.SaveChangesAsync();
 
