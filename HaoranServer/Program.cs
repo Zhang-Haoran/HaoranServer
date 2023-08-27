@@ -23,5 +23,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+// MapControllers() 方法负责正确地将请求路由到相应的控制器方法 ，没有这行的话，execute swagger api 会404
+app.MapControllers();
 
 app.Run();
