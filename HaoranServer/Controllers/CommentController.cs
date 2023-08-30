@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using HaoranServer.Context;
 using HaoranServer.Models;
+using System.ComponentModel.Design;
 
 namespace HaoranServer.Controllers
 {
@@ -29,14 +30,14 @@ namespace HaoranServer.Controllers
         }
 
         // GET: api/Comment/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Comment>> GetComment(int id)
+        [HttpGet("{commentId}")]
+        public async Task<ActionResult<Comment>> GetComment(int commentId)
         {
           if (_context.comment == null)
           {
               return NotFound();
           }
-            var comment = await _context.comment.FindAsync(id);
+            var comment = await _context.comment.FindAsync(commentId);
 
             if (comment == null)
             {
@@ -47,10 +48,10 @@ namespace HaoranServer.Controllers
         }
 
         // PUT: api/Comment/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutComment(int id, Comment comment)
+        [HttpPut("{commentId}")]
+        public async Task<IActionResult> PutComment(int commentId, Comment comment)
         {
-            if (id != comment.Id)
+            if (commentId != comment.CommentId)
             {
                 return BadRequest();
             }
@@ -63,7 +64,7 @@ namespace HaoranServer.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CommentExists(id))
+                if (!CommentExists(commentId))
                 {
                     return NotFound();
                 }
@@ -89,18 +90,18 @@ namespace HaoranServer.Controllers
             _context.comment.Add(comment);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetComment", new { id = comment.Id }, comment);
+            return CreatedAtAction("GetComment", new { commentId = comment.CommentId }, comment);
         }
 
         // DELETE: api/Comment/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteComment(int id)
+        [HttpDelete("{commentId}")]
+        public async Task<IActionResult> DeleteComment(int commentId)
         {
             if (_context.comment == null)
             {
                 return NotFound();
             }
-            var comment = await _context.comment.FindAsync(id);
+            var comment = await _context.comment.FindAsync(commentId);
             if (comment == null)
             {
                 return NotFound();
@@ -112,9 +113,9 @@ namespace HaoranServer.Controllers
             return NoContent();
         }
 
-        private bool CommentExists(int id)
+        private bool CommentExists(int commentId)
         {
-            return (_context.comment?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.comment?.Any(e => e.CommentId == commentId)).GetValueOrDefault();
         }
     }
 }
