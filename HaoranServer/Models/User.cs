@@ -9,6 +9,6 @@
         public string? Role { get; set; }
         public string Password { get; set; }
 
-        public ICollection<Review> Review { get; set; }
+        public ICollection<Review>? Review { get; set; }
     }
 }
