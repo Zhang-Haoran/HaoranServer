@@ -33,7 +33,7 @@ namespace HaoranServer.Controllers
           {
               return NotFound();
           }
-            return await _context.review.Include(r => r.User).ToListAsync();
+            return await _context.review.Include(r => r.User).ToListAsync(); // 用include 带上 User
         }
 
         // GET: api/Review/5
@@ -44,7 +44,7 @@ namespace HaoranServer.Controllers
           {
               return NotFound();
           }
-            var review = await _context.review.Include(r => r.User).FirstOrDefaultAsync(r => r.ReviewId == reviewId);
+            var review = await _context.review.Include(r => r.User).FirstOrDefaultAsync(r => r.ReviewId == reviewId); // 用include 带上 User
 
             if (review == null)
             {
@@ -88,7 +88,7 @@ namespace HaoranServer.Controllers
         // POST: api/Review
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Review>> PostReview([FromBody] ReviewPostDto reviewPostDto)
+        public async Task<ActionResult<Review>> PostReview([FromBody] ReviewPostDto reviewPostDto) // 通过 dto来控制 要求request里的body
         {
             // 根据UserId查找用户
             var user = await _userContext.user.FindAsync(reviewPostDto.UserId);
@@ -98,7 +98,7 @@ namespace HaoranServer.Controllers
             {
                 return NotFound(new { message = "User not found." });
             }
-
+            // 新建和赋值
             Review review = new Review
             {
                 Rating = reviewPostDto.Rating,
@@ -111,7 +111,7 @@ namespace HaoranServer.Controllers
           }
             _context.review.Add(review);
             await _context.SaveChangesAsync();
-
+            // 返回的body中带上User entity的信息
             review.User = user;
             return CreatedAtAction("GetReview", new { reviewId = review.ReviewId }, review);
         }
