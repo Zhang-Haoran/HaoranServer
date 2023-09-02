@@ -8,6 +8,7 @@ namespace HaoranServer.Mappers
     {
         public UserProfile() 
         {
+            // CreateMap<MySourceClass, MyDestinationClass>();
             CreateMap<UserPutDto, User>();
             CreateMap<UserPostDto, User>();
         }
