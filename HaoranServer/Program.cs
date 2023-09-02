@@ -21,7 +21,8 @@ builder.Services.AddSwaggerGen();
 // 把新建的controller加入，否则swagger里无api显示
 builder.Services.AddControllers()
     .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore); // avoid circular reference
-
+// 添加AutoMapper
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // 设置跨域policy
 builder.Services.AddCors(options =>
 {

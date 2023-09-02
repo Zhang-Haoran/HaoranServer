@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HaoranServer.Context;
 using HaoranServer.Models;
 using HaoranServer.Dto.UserDto;
+using AutoMapper;
 
 namespace HaoranServer.Controllers
 {
@@ -16,10 +17,13 @@ namespace HaoranServer.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserContext _context;
+        // 在控制器中注入IMapper
+        private readonly IMapper _mapper;
 
-        public UserController(UserContext context)
+        public UserController(UserContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/User
@@ -62,11 +66,16 @@ namespace HaoranServer.Controllers
             }
             var user = await _context.user.FindAsync(userId);
             _context.Entry(user).State = EntityState.Modified;
-            user.FirstName = userPutDto.FirstName;
-            user.LastName = userPutDto.LastName;
-            user.DateOfBirth = userPutDto.DateOfBirth;
-            user.Role = userPutDto.Role;
-            user.Password = userPutDto.Password;
+
+            // 方法 1 手动映射
+            //user.FirstName = userPutDto.FirstName;
+            //user.LastName = userPutDto.LastName;
+            //user.DateOfBirth = userPutDto.DateOfBirth;
+            //user.Role = userPutDto.Role;
+            //user.Password = userPutDto.Password;
+
+            // 方法 2 mapper映射
+            _mapper.Map(userPutDto, user);
 
             try
             {
@@ -97,11 +106,16 @@ namespace HaoranServer.Controllers
               return Problem("Entity set 'UserContext.user'  is null.");
           }
             User user = new User();
-            user.FirstName = userPostDto.FirstName;
-            user.LastName = userPostDto.LastName;
-            user.DateOfBirth = userPostDto.DateOfBirth;
-            user.Role = userPostDto.Role;
-            user.Password = userPostDto.Password;
+
+            // 方法 1 手动映射
+            //user.FirstName = userPostDto.FirstName;
+            //user.LastName = userPostDto.LastName;
+            //user.DateOfBirth = userPostDto.DateOfBirth;
+            //user.Role = userPostDto.Role;
+            //user.Password = userPostDto.Password;
+
+            // 方法 2 mapper映射
+            _mapper.Map(userPostDto, user);
 
             _context.user.Add(user);
             await _context.SaveChangesAsync();
