@@ -90,12 +90,19 @@ namespace HaoranServer.Controllers
         // POST: api/User
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<User>> PostUser(UserPostDto userPostDto)
         {
           if (_context.user == null)
           {
               return Problem("Entity set 'UserContext.user'  is null.");
           }
+            User user = new User();
+            user.FirstName = userPostDto.FirstName;
+            user.LastName = userPostDto.LastName;
+            user.DateOfBirth = userPostDto.DateOfBirth;
+            user.Role = userPostDto.Role;
+            user.Password = userPostDto.Password;
+
             _context.user.Add(user);
             await _context.SaveChangesAsync();
 
