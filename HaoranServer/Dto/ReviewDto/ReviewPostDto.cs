@@ -1,4 +1,4 @@
-﻿namespace HaoranServer.Dto
+﻿namespace HaoranServer.Dto.ReviewDto
 {
     public class ReviewPostDto
     {

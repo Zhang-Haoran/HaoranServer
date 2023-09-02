@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HaoranServer.Context;
 using HaoranServer.Models;
+using HaoranServer.Dto.UserDto;
 
 namespace HaoranServer.Controllers
 {
@@ -29,7 +30,7 @@ namespace HaoranServer.Controllers
           {
               return NotFound();
           }
-            return await _context.user.ToListAsync();
+            return await _context.user.Include(r => r.Review).ToListAsync();
         }
 
         // GET: api/User/5
@@ -40,7 +41,7 @@ namespace HaoranServer.Controllers
           {
               return NotFound();
           }
-            var user = await _context.user.FindAsync(userId);
+            var user = await _context.user.Include(r => r.Review).FirstOrDefaultAsync(u => u.UserId == userId);
 
             if (user == null)
             {
@@ -53,14 +54,19 @@ namespace HaoranServer.Controllers
         // PUT: api/User/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{userId}")]
-        public async Task<IActionResult> PutUser(int userId, User user)
+        public async Task<IActionResult> PutUser(int userId, UserPutDto userPutDto)
         {
-            if (userId != user.UserId)
+            if (userId != userPutDto.UserId)
             {
                 return BadRequest();
             }
-
+            var user = await _context.user.FindAsync(userId);
             _context.Entry(user).State = EntityState.Modified;
+            user.FirstName = userPutDto.FirstName;
+            user.LastName = userPutDto.LastName;
+            user.DateOfBirth = userPutDto.DateOfBirth;
+            user.Role = userPutDto.Role;
+            user.Password = userPutDto.Password;
 
             try
             {

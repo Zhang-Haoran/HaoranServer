@@ -1,27 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HaoranServer.Context;
 using HaoranServer.Models;
-using HaoranServer.Dto;
+using HaoranServer.Dto.ReviewDto;
 
 namespace HaoranServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class ReviewController : ControllerBase
     {
-        private readonly ReviewContext _context;
+        private readonly ReviewContext _reviewContext;
 
         private readonly UserContext _userContext;
 
         public ReviewController(ReviewContext context, UserContext userContext)
         {
-            _context = context;
+            _reviewContext = context;
             _userContext = userContext;
         }
 
@@ -29,22 +24,22 @@ namespace HaoranServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Review>>> Getreview()
         {
-          if (_context.review == null)
+          if (_reviewContext.review == null)
           {
               return NotFound();
           }
-            return await _context.review.Include(r => r.User).ToListAsync(); // 用include 带上 User
+            return await _reviewContext.review.Include(r => r.User).ToListAsync(); // 用include 带上 User
         }
 
         // GET: api/Review/5
         [HttpGet("{reviewId}")]
         public async Task<ActionResult<Review>> GetReview(int reviewId)
         {
-          if (_context.review == null)
+          if (_reviewContext.review == null)
           {
               return NotFound();
           }
-            var review = await _context.review.Include(r => r.User).FirstOrDefaultAsync(r => r.ReviewId == reviewId); // 用include 带上 User
+            var review = await _reviewContext.review.Include(r => r.User).FirstOrDefaultAsync(r => r.ReviewId == reviewId); // 用include 带上 User
 
             if (review == null)
             {
@@ -64,11 +59,11 @@ namespace HaoranServer.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(review).State = EntityState.Modified;
+            _reviewContext.Entry(review).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _reviewContext.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -105,12 +100,12 @@ namespace HaoranServer.Controllers
                 Comment = reviewPostDto.Comment,
                 UserId = reviewPostDto.UserId,
             };
-          if (_context.review == null)
+          if (_reviewContext.review == null)
           {
               return Problem("Entity set 'ReviewContext.review'  is null.");
           }
-            _context.review.Add(review);
-            await _context.SaveChangesAsync();
+            _reviewContext.review.Add(review);
+            await _reviewContext.SaveChangesAsync();
             // 返回的body中带上User entity的信息
             review.User = user;
             return CreatedAtAction("GetReview", new { reviewId = review.ReviewId }, review);
@@ -120,25 +115,25 @@ namespace HaoranServer.Controllers
         [HttpDelete("{reviewId}")]
         public async Task<IActionResult> DeleteReview(int reviewId)
         {
-            if (_context.review == null)
+            if (_reviewContext.review == null)
             {
                 return NotFound();
             }
-            var review = await _context.review.FindAsync(reviewId);
+            var review = await _reviewContext.review.FindAsync(reviewId);
             if (review == null)
             {
                 return NotFound();
             }
 
-            _context.review.Remove(review);
-            await _context.SaveChangesAsync();
+            _reviewContext.review.Remove(review);
+            await _reviewContext.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool ReviewExists(int reviewId)
         {
-            return (_context.review?.Any(e => e.ReviewId == reviewId)).GetValueOrDefault();
+            return (_reviewContext.review?.Any(e => e.ReviewId == reviewId)).GetValueOrDefault();
         }
     }
 }
