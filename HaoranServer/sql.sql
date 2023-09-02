@@ -22,6 +22,7 @@ IF NOT EXISTS
 		dateofbirth varchar(255) NOT NULL,
 		role varchar(255) NULL,
 		password varchar(255) NOT NULL,
+		isDeleted bit NOT NULL DEFAULT 0
 		CONSTRAINT pk_user PRIMARY KEY(userId))
 	End
 GO

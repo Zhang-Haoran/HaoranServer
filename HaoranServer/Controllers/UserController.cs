@@ -30,7 +30,7 @@ namespace HaoranServer.Controllers
           {
               return NotFound();
           }
-            return await _context.user.Include(r => r.Review).ToListAsync();
+            return await _context.user.Where(u => !u.IsDeleted).Include(r => r.Review).ToListAsync(); // Where(u => !u.IsDeleted) 避免显示 软删除的 用户
         }
 
         // GET: api/User/5
@@ -41,7 +41,7 @@ namespace HaoranServer.Controllers
           {
               return NotFound();
           }
-            var user = await _context.user.Include(r => r.Review).FirstOrDefaultAsync(u => u.UserId == userId);
+            var user = await _context.user.Where(u => !u.IsDeleted).Include(r => r.Review).FirstOrDefaultAsync(u => u.UserId == userId);
 
             if (user == null)
             {
@@ -116,7 +116,7 @@ namespace HaoranServer.Controllers
                 return NotFound();
             }
 
-            _context.user.Remove(user);
+            user.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return NoContent();

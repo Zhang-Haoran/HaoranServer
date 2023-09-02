@@ -10,5 +10,7 @@
         public string Password { get; set; }
 
         public ICollection<Review>? Review { get; set; }
+
+        public bool IsDeleted { get; set; } = false; // 初始化默认值为false
     }
 }
