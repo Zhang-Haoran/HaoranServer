@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using HaoranServer.Context;
 using HaoranServer.Models;
-using System.ComponentModel.Design;
 
 namespace HaoranServer.Controllers
 {

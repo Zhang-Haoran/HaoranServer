@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using HaoranServer.Context;
 using HaoranServer.Models;
 using HaoranServer.Dto.ReviewDto;
+using AutoMapper;
 
 namespace HaoranServer.Controllers
 {
@@ -14,10 +15,13 @@ namespace HaoranServer.Controllers
 
         private readonly UserContext _userContext;
 
-        public ReviewController(ReviewContext context, UserContext userContext)
+        private readonly IMapper _mapper;
+
+        public ReviewController(ReviewContext context, UserContext userContext, IMapper mapper)
         {
             _reviewContext = context;
             _userContext = userContext;
+            _mapper = mapper;
         }
 
         // GET: api/Review
@@ -52,29 +56,29 @@ namespace HaoranServer.Controllers
         // PUT: api/Review/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{reviewId}")]
-        public async Task<IActionResult> PutReview(int reviewId, Review review)
+        public async Task<IActionResult> PutReview(int reviewId, ReviewPutDto reviewPutDto)
         {
-            if (reviewId != review.ReviewId)
+            if (reviewId != reviewPutDto.ReviewId)
             {
                 return BadRequest();
             }
+            if (!ReviewExists(reviewId))
+            {
+                return NotFound();
+            }
 
+            var review = await _reviewContext.review.FindAsync(reviewId);
+            
             _reviewContext.Entry(review).State = EntityState.Modified;
 
+            _mapper.Map(reviewPutDto, review);
             try
             {
                 await _reviewContext.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ReviewExists(reviewId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();

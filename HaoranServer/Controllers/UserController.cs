@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HaoranServer.Context;
 using HaoranServer.Models;
@@ -64,6 +59,12 @@ namespace HaoranServer.Controllers
             {
                 return BadRequest();
             }
+
+            if (!UserExists(userId))
+            {
+                return NotFound();
+            }
+
             var user = await _context.user.FindAsync(userId);
             _context.Entry(user).State = EntityState.Modified;
 
@@ -83,14 +84,7 @@ namespace HaoranServer.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(userId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
