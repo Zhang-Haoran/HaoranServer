@@ -40,3 +40,43 @@ IF NOT EXISTS
 		CONSTRAINT fk_review_user_userid FOREIGN KEY (userId) REFERENCES [user](userId))
 	End
 GO
+
+IF NOT EXISTS
+(SELECT 1 FROM information_schema.columns where column_name='tourId' and table_name= 'tour' and table_schema='dbo')
+	BEGIN
+		CREATE TABLE tour(
+		tourId int IDENTITY(1,1) NOT NULL,
+		price int not null,
+		startDate varchar(255) not null,
+		endDate varchar(255) not null,
+		state varchar(255) Null,
+		city varchar(255) NULL,
+		title varchar(255) null,
+		subtitle varchar(255) null,
+		introduction varchar(255) null,
+		highlights varchar(255) null,
+		included varchar(255) null,
+		itinerary varchar(255) null,
+		[image] varchar(255) null,
+		map varchar(255) null,
+		CONSTRAINT pk_tour PRIMARY KEY(tourId),
+		)
+	End
+GO
+
+IF NOT EXISTS
+(SELECT 1 FROM information_schema.columns where column_name='bookingId' and table_name= 'booking' and table_schema='dbo')
+	BEGIN
+		CREATE TABLE booking(
+		bookingId int IDENTITY(1,1) NOT NULL,
+		price int not null,
+		paid bit NOT NULL DEFAULT 0,
+		userId int not null,
+		tourId int not null
+
+		CONSTRAINT pk_booking PRIMARY KEY(bookingId),
+		CONSTRAINT fk_booking_user_userid FOREIGN KEY (userId) REFERENCES [user](userId),
+		CONSTRAINT fk_booking_tour_tourid FOREIGN KEY (tourId) REFERENCES tour(tourId)
+		)
+	End
+GO
