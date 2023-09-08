@@ -7,7 +7,7 @@ using AutoMapper;
 
 namespace HaoranServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class TourController : ControllerBase
     {
@@ -33,14 +33,14 @@ namespace HaoranServer.Controllers
         }
 
         // GET: api/Tour/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Tour>> GetTour(int id)
+        [HttpGet("{tourId}")]
+        public async Task<ActionResult<Tour>> GetTour(int tourId)
         {
           if (_context.tour == null)
           {
               return NotFound();
           }
-            var tour = await _context.tour.FindAsync(id);
+            var tour = await _context.tour.FindAsync(tourId);
 
             if (tour == null)
             {
@@ -52,10 +52,10 @@ namespace HaoranServer.Controllers
 
         // PUT: api/Tour/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutTour(int id, Tour tour)
+        [HttpPut("{tourId}")]
+        public async Task<IActionResult> PutTour(int tourId, Tour tour)
         {
-            if (id != tour.tourId)
+            if (tourId != tour.tourId)
             {
                 return BadRequest();
             }
@@ -68,7 +68,7 @@ namespace HaoranServer.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!TourExists(id))
+                if (!TourExists(tourId))
                 {
                     return NotFound();
                 }
@@ -95,18 +95,18 @@ namespace HaoranServer.Controllers
             _context.tour.Add(tour);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTour", new { id = tour.tourId }, tour);
+            return CreatedAtAction("GetTour", new { tourId = tour.tourId }, tour);
         }
 
         // DELETE: api/Tour/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTour(int id)
+        [HttpDelete("{tourId}")]
+        public async Task<IActionResult> DeleteTour(int tourId)
         {
             if (_context.tour == null)
             {
                 return NotFound();
             }
-            var tour = await _context.tour.FindAsync(id);
+            var tour = await _context.tour.FindAsync(tourId);
             if (tour == null)
             {
                 return NotFound();
@@ -118,9 +118,9 @@ namespace HaoranServer.Controllers
             return NoContent();
         }
 
-        private bool TourExists(int id)
+        private bool TourExists(int tourId)
         {
-            return (_context.tour?.Any(e => e.tourId == id)).GetValueOrDefault();
+            return (_context.tour?.Any(e => e.tourId == tourId)).GetValueOrDefault();
         }
     }
 }
