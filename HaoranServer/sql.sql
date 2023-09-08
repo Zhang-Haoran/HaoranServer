@@ -49,7 +49,7 @@ IF NOT EXISTS
 		price int not null,
 		startDate varchar(255) not null,
 		endDate varchar(255) not null,
-		state varchar(255) Null,
+		[state] varchar(255) Null,
 		city varchar(255) NULL,
 		title varchar(255) null,
 		subtitle varchar(255) null,
