@@ -18,7 +18,8 @@ builder.Services.AddDbContext<TourContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDbContext<BookingContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+// 加入service
+builder.Services.AddScoped<BookingService>();
 // 启用 API Explorer 的功能，使得 API 的数据可以被访问和暴露，Swagger所需。
 builder.Services.AddEndpointsApiExplorer();
 // 在NuGet install SwaggerGen 
