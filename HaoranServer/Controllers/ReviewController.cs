@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using HaoranServer.Context;
-using HaoranServer.Models;
 using HaoranServer.Dto.ReviewDto;
-using AutoMapper;
+using HaoranServer.Models;
 
 namespace HaoranServer.Controllers
 {
@@ -11,129 +8,68 @@ namespace HaoranServer.Controllers
     [ApiController]
     public class ReviewController : ControllerBase
     {
-        private readonly ReviewContext _reviewContext;
+        private readonly ReviewService _reviewService;
 
-        private readonly UserContext _userContext;
-
-        private readonly IMapper _mapper;
-
-        public ReviewController(ReviewContext context, UserContext userContext, IMapper mapper)
+        public ReviewController(ReviewService reviewService)
         {
-            _reviewContext = context;
-            _userContext = userContext;
-            _mapper = mapper;
+            _reviewService = reviewService;
         }
 
-        // GET: api/Review
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Review>>> Getreview()
+        public async Task<ActionResult<IEnumerable<Review>>> GetReview()
         {
-          if (_reviewContext.review == null)
-          {
-              return NotFound();
-          }
-            return await _reviewContext.review.Include(r => r.User).ToListAsync(); // 用include 带上 User
+            var reviews = await _reviewService.GetAllReviews();
+            if (reviews == null || !reviews.Any())
+            {
+                return NotFound();
+            }
+            return Ok(reviews);
         }
 
-        // GET: api/Review/5
         [HttpGet("{reviewId}")]
         public async Task<ActionResult<Review>> GetReview(int reviewId)
         {
-          if (_reviewContext.review == null)
-          {
-              return NotFound();
-          }
-            var review = await _reviewContext.review.Include(r => r.User).FirstOrDefaultAsync(r => r.ReviewId == reviewId); // 用include 带上 User
-
+            var review = await _reviewService.GetReview(reviewId);
             if (review == null)
             {
                 return NotFound();
             }
-
-            return review;
+            return Ok(review);
         }
 
-        // PUT: api/Review/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{reviewId}")]
         public async Task<IActionResult> PutReview(int reviewId, ReviewPutDto reviewPutDto)
         {
-            if (!ReviewExists(reviewId))
+            if (!_reviewService.ReviewExists(reviewId))
             {
                 return NotFound();
             }
 
-            var review = await _reviewContext.review.FindAsync(reviewId);
-            
-            _reviewContext.Entry(review).State = EntityState.Modified;
-
-            _mapper.Map(reviewPutDto, review);
-            try
-            {
-                await _reviewContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw;
-            }
-
+            await _reviewService.UpdateReview(reviewId, reviewPutDto);
             return NoContent();
         }
 
-        // POST: api/Review
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Review>> PostReview([FromBody] ReviewPostDto reviewPostDto) // 通过 dto来控制 要求request里的body
+        public async Task<ActionResult<Review>> PostReview(ReviewPostDto reviewPostDto)
         {
-            // 根据UserId查找用户
-            var user = await _userContext.user.FindAsync(reviewPostDto.UserId);
-
-            // 如果没有找到用户，返回一个错误
-            if (user == null)
+            var review = await _reviewService.CreateReview(reviewPostDto);
+            if (review == null)
             {
                 return NotFound(new { message = "User not found." });
             }
-            // 新建和赋值
-            Review review = new Review
-            {
-                Rating = reviewPostDto.Rating,
-                Comment = reviewPostDto.Comment,
-                UserId = reviewPostDto.UserId,
-            };
-          if (_reviewContext.review == null)
-          {
-              return Problem("Entity set 'ReviewContext.review'  is null.");
-          }
-            _reviewContext.review.Add(review);
-            await _reviewContext.SaveChangesAsync();
-            // 返回的body中带上User entity的信息
-            review.User = user;
             return CreatedAtAction("GetReview", new { reviewId = review.ReviewId }, review);
         }
 
-        // DELETE: api/Review/5
         [HttpDelete("{reviewId}")]
         public async Task<IActionResult> DeleteReview(int reviewId)
         {
-            if (_reviewContext.review == null)
-            {
-                return NotFound();
-            }
-            var review = await _reviewContext.review.FindAsync(reviewId);
-            if (review == null)
+            if (!_reviewService.ReviewExists(reviewId))
             {
                 return NotFound();
             }
 
-            _reviewContext.review.Remove(review);
-            await _reviewContext.SaveChangesAsync();
-
+            await _reviewService.DeleteReview(reviewId);
             return NoContent();
-        }
-
-        private bool ReviewExists(int reviewId)
-        {
-            return (_reviewContext.review?.Any(e => e.ReviewId == reviewId)).GetValueOrDefault();
         }
     }
 }

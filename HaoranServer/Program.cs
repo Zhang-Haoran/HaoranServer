@@ -21,6 +21,8 @@ builder.Services.AddDbContext<BookingContext>(options =>
 // 加入service
 builder.Services.AddScoped<BookingService>();
 builder.Services.AddScoped<TourService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ReviewService>();
 // 启用 API Explorer 的功能，使得 API 的数据可以被访问和暴露，Swagger所需。
 builder.Services.AddEndpointsApiExplorer();
 // 在NuGet install SwaggerGen 

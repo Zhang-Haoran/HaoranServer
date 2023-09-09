@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using HaoranServer.Context;
-using HaoranServer.Models;
 using HaoranServer.Dto.UserDto;
-using AutoMapper;
+using HaoranServer.Models;
 
 namespace HaoranServer.Controllers
 {
@@ -11,130 +8,64 @@ namespace HaoranServer.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly UserContext _context;
-        // 在控制器中注入IMapper
-        private readonly IMapper _mapper;
+        private readonly UserService _userService;
 
-        public UserController(UserContext context, IMapper mapper)
+        public UserController(UserService userService)
         {
-            _context = context;
-            _mapper = mapper;
+            _userService = userService;
         }
 
-        // GET: api/User
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> Getuser()
+        public async Task<ActionResult<IEnumerable<User>>> GetUser()
         {
-          if (_context.user == null)
-          {
-              return NotFound();
-          }
-            return await _context.user.Where(u => !u.IsDeleted).Include(r => r.Review).ToListAsync(); // Where(u => !u.IsDeleted) 避免显示 软删除的 用户
+            var users = await _userService.GetAllUsers();
+            if (users == null || !users.Any())
+            {
+                return NotFound();
+            }
+            return Ok(users);
         }
 
-        // GET: api/User/5
         [HttpGet("{userId}")]
         public async Task<ActionResult<User>> GetUser(int userId)
         {
-          if (_context.user == null)
-          {
-              return NotFound();
-          }
-            var user = await _context.user.Where(u => !u.IsDeleted).Include(r => r.Review).FirstOrDefaultAsync(u => u.UserId == userId);
-
+            var user = await _userService.GetUser(userId);
             if (user == null)
             {
                 return NotFound();
             }
-
-            return user;
+            return Ok(user);
         }
 
-        // PUT: api/User/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{userId}")]
         public async Task<IActionResult> PutUser(int userId, UserPutDto userPutDto)
         {
-            if (!UserExists(userId))
+            if (!_userService.UserExists(userId))
             {
                 return NotFound();
             }
 
-            var user = await _context.user.FindAsync(userId);
-            _context.Entry(user).State = EntityState.Modified;
-
-            // 方法 1 手动映射
-            //user.FirstName = userPutDto.FirstName;
-            //user.LastName = userPutDto.LastName;
-            //user.DateOfBirth = userPutDto.DateOfBirth;
-            //user.Role = userPutDto.Role;
-            //user.Password = userPutDto.Password;
-
-            // 方法 2 mapper映射
-            _mapper.Map(userPutDto, user);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw;
-            }
-
+            await _userService.UpdateUser(userId, userPutDto);
             return NoContent();
         }
 
-        // POST: api/User
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(UserPostDto userPostDto)
         {
-          if (_context.user == null)
-          {
-              return Problem("Entity set 'UserContext.user'  is null.");
-          }
-            User user = new User();
-
-            // 方法 1 手动映射
-            //user.FirstName = userPostDto.FirstName;
-            //user.LastName = userPostDto.LastName;
-            //user.DateOfBirth = userPostDto.DateOfBirth;
-            //user.Role = userPostDto.Role;
-            //user.Password = userPostDto.Password;
-
-            // 方法 2 mapper映射
-            _mapper.Map(userPostDto, user);
-
-            _context.user.Add(user);
-            await _context.SaveChangesAsync();
-
+            var user = await _userService.CreateUser(userPostDto);
             return CreatedAtAction("GetUser", new { userId = user.UserId }, user);
         }
 
-        // DELETE: api/User/5
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUser(int userId)
         {
-            if (_context.user == null)
-            {
-                return NotFound();
-            }
-            var user = await _context.user.FindAsync(userId);
-            if (user == null)
+            if (!_userService.UserExists(userId))
             {
                 return NotFound();
             }
 
-            user.IsDeleted = true;
-            await _context.SaveChangesAsync();
-
+            await _userService.SoftDeleteUser(userId);
             return NoContent();
-        }
-
-        private bool UserExists(int userId)
-        {
-            return (_context.user?.Any(e => e.UserId == userId)).GetValueOrDefault();
         }
     }
 }
