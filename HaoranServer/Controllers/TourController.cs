@@ -11,112 +11,64 @@ namespace HaoranServer.Controllers
     [ApiController]
     public class TourController : ControllerBase
     {
-        private readonly TourContext _context;
+        private readonly TourService _tourService;
 
-        private readonly IMapper _mapper;
-
-        public TourController(TourContext context, IMapper mapper)
+        public TourController(TourService tourService)
         {
-            _context = context;
-            _mapper = mapper;
+            _tourService = tourService;
         }
 
-        // GET: api/Tour
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tour>>> Gettour()
         {
-          if (_context.tour == null)
-          {
-              return NotFound();
-          }
-            return await _context.tour.ToListAsync();
+            var tours = await _tourService.GetAllTours();
+            if (tours == null || !tours.Any())
+            {
+                return NotFound();
+            }
+            return Ok(tours);
         }
 
-        // GET: api/Tour/5
         [HttpGet("{tourId}")]
         public async Task<ActionResult<Tour>> GetTour(int tourId)
         {
-          if (_context.tour == null)
-          {
-              return NotFound();
-          }
-            var tour = await _context.tour.FindAsync(tourId);
-
+            var tour = await _tourService.GetTour(tourId);
             if (tour == null)
             {
                 return NotFound();
             }
-
-            return tour;
+            return Ok(tour);
         }
 
-        // PUT: api/Tour/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{tourId}")]
         public async Task<IActionResult> PutTour(int tourId, TourPutDto tourPutDto)
         {
-            var tour = await _context.tour.FindAsync(tourId);
-            _context.Entry(tour).State = EntityState.Modified;
-            _mapper.Map(tourPutDto, tour);
-            try
+            if (!_tourService.TourExists(tourId))
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TourExists(tourId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound();
             }
 
+            await _tourService.UpdateTour(tourId, tourPutDto);
             return NoContent();
         }
 
-        // POST: api/Tour
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Tour>> PostTour(TourPostDto tourPostDto)
         {
-          if (_context.tour == null)
-          {
-              return Problem("Entity set 'TourContext.tour'  is null.");
-          }
-            Tour tour = new Tour();
-            _mapper.Map(tourPostDto, tour);
-            _context.tour.Add(tour);
-            await _context.SaveChangesAsync();
-
+            var tour = await _tourService.CreateTour(tourPostDto);
             return CreatedAtAction("GetTour", new { tourId = tour.tourId }, tour);
         }
 
-        // DELETE: api/Tour/5
         [HttpDelete("{tourId}")]
         public async Task<IActionResult> DeleteTour(int tourId)
         {
-            if (_context.tour == null)
-            {
-                return NotFound();
-            }
-            var tour = await _context.tour.FindAsync(tourId);
-            if (tour == null)
+            if (!_tourService.TourExists(tourId))
             {
                 return NotFound();
             }
 
-            _context.tour.Remove(tour);
-            await _context.SaveChangesAsync();
-
+            await _tourService.DeleteTour(tourId);
             return NoContent();
-        }
-
-        private bool TourExists(int tourId)
-        {
-            return (_context.tour?.Any(e => e.tourId == tourId)).GetValueOrDefault();
         }
     }
 }
