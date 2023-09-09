@@ -55,11 +55,6 @@ namespace HaoranServer.Controllers
         [HttpPut("{userId}")]
         public async Task<IActionResult> PutUser(int userId, UserPutDto userPutDto)
         {
-            if (userId != userPutDto.UserId)
-            {
-                return BadRequest();
-            }
-
             if (!UserExists(userId))
             {
                 return NotFound();

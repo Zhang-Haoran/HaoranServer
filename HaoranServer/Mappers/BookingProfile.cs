@@ -9,6 +9,7 @@ namespace HaoranServer.Mappers
         public BookingProfile()
         {
             CreateMap<BookingPostDto, Booking>();
+            CreateMap<BookingPutDto, Booking>();
         }
     }
 }

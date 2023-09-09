@@ -8,6 +8,7 @@ namespace HaoranServer.Mappers
     {
         public TourProfile() {
             CreateMap<TourPostDto, Tour>();
+            CreateMap<TourPutDto, Tour>();
         }
     }
 }

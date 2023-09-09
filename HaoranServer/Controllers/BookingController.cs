@@ -53,15 +53,12 @@ namespace HaoranServer.Controllers
         // PUT: api/Booking/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{bookingId}")]
-        public async Task<IActionResult> PutBooking(int bookingId, Booking booking)
+        public async Task<IActionResult> PutBooking(int bookingId, BookingPutDto bookingPutDto)
         {
-            if (bookingId != booking.BookingId)
-            {
-                return BadRequest();
-            }
-
+            var booking = await _context.booking.FindAsync(bookingId);
             _context.Entry(booking).State = EntityState.Modified;
 
+            _mapper.Map(bookingPutDto, booking);
             try
             {
                 await _context.SaveChangesAsync();

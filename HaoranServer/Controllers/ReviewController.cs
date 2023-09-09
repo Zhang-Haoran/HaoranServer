@@ -58,10 +58,6 @@ namespace HaoranServer.Controllers
         [HttpPut("{reviewId}")]
         public async Task<IActionResult> PutReview(int reviewId, ReviewPutDto reviewPutDto)
         {
-            if (reviewId != reviewPutDto.ReviewId)
-            {
-                return BadRequest();
-            }
             if (!ReviewExists(reviewId))
             {
                 return NotFound();

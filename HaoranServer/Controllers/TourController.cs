@@ -53,15 +53,11 @@ namespace HaoranServer.Controllers
         // PUT: api/Tour/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{tourId}")]
-        public async Task<IActionResult> PutTour(int tourId, Tour tour)
+        public async Task<IActionResult> PutTour(int tourId, TourPutDto tourPutDto)
         {
-            if (tourId != tour.tourId)
-            {
-                return BadRequest();
-            }
-
+            var tour = await _context.tour.FindAsync(tourId);
             _context.Entry(tour).State = EntityState.Modified;
-
+            _mapper.Map(tourPutDto, tour);
             try
             {
                 await _context.SaveChangesAsync();
